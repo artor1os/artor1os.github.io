@@ -13805,8 +13805,8 @@ Error message and password prompt
 <div created="20200604145542727" modified="20200604163959092" title="$:/state/plugin-info-1088025932-$:/languages/zh-Hans">
 <pre>no</pre>
 </div>
-<div created="20200604150129043" modified="20200604164332417" title="$:/state/showeditpreview">
-<pre>no</pre>
+<div created="20200604150129043" modified="20200605205606152" title="$:/state/showeditpreview">
+<pre>yes</pre>
 </div>
 <div created="20200604154058804" modified="20200604165854456" title="$:/state/tab--1963855381">
 <pre>$:/themes/tiddlywiki/vanilla/themetweaks</pre>
@@ -13835,7 +13835,7 @@ Error message and password prompt
 <div title="$:/status/RequireReloadDueToPluginChange">
 <pre>no</pre>
 </div>
-<div created="20200605183151782" list="[[6.824 Lab3]] GettingStarted $:/ControlPanel" modified="20200605184402148" title="$:/StoryList">
+<div created="20200605184527033" list="[[6.824 Lab3]] GettingStarted $:/ControlPanel" modified="20200605184533051" title="$:/StoryList">
 <pre></pre>
 </div>
 <div plugin-type="info" title="$:/temp/info-plugin" type="application/json">
@@ -14997,7 +14997,7 @@ This plugin also requires the JSZip plugin ([[$:/plugins/tiddlywiki/jszip]]) to 
 <div created="20200604154110382" modified="20200604154110382" title="$:/themes/tiddlywiki/vanilla/options/stickytitles">
 <pre>yes</pre>
 </div>
-<div created="20200604150045795" modified="20200605184111512" tags="6.824 lab TableOfContents" title="6.824 Lab3" type="text/x-markdown">
+<div created="20200604150045795" modified="20200605210916912" tags="6.824 lab TableOfContents" title="6.824 Lab3" type="text/x-markdown">
 <pre>## Part A
 
 - server要能唯一判断某个请求，只用一个递增id是不够的，因为可能有多个client，所以还需要一个client id（随机）
@@ -15009,8 +15009,39 @@ This plugin also requires the JSZip plugin ([[$:/plugins/tiddlywiki/jszip]]) to 
 
 - 首先要把Log的访问抽象一层，不能直接访问[]LogEntry，因为调用丢弃老日志后，直接用slice index会得到错误的结果，需要保存上次丢弃的最后一个index：LastIncludedIndex
 - 除了所有使用Log的地方需要修改外，还有appendEntries时如果next index&lt;=LastIncludedIndex，那么需要先发送InstallSnapshot到follower，另外appendEntries mismatch的时候decrement next index如果超过了LastIncludedIndex（使用论文第8页左上的方法快速decrement，而不是一次减1），也要InstallSnapshot。还有AppendEntries RPC handler里，判断conflict需要到LastIncludedIndex为止，而不是到0为止。
-
-</pre>
+- InstallSnapshot RPC handler中apply snapshot就意味着到LastIncludedIndex的log都commit并且apply了，需要设置lastApplied，最好也设置commitIndex。
+- pass 3B第一个测试后遇到了性能问题，TestSnapshotSize3B超过了120s。分析测试代码，发现没有任何的分区或者服务器失效，仅仅是执行了200组PUT，GET，PUT，GET操作。先尝试pprof分析CPU时间，发现CPU时间都很短。在kvserver端，打出RPC总共等待的时间，发现每次都是150ms，和heartbeatInterval很接近。继续分析，在raft打印日志的时候打出和前一次日志的时间差（保存上次打日志的时间，每次打日志的时候打出当前时间减去上次时间，更新上次时间为当前时间），这样可以发现每条日志之间的时间差。发现从Start被调用到notify goroutine调用appendEntries每次都是150ms，可是明明在Start调用中已经发送一个信号到notifyCh了。经分析发现notifyCh根本没有起作用，原因是go中select**没有fallthrough**。原来的notify是这么写的:
+  ```go
+  ticker := time.NewTicker(heartbeatInterval)
+  for {
+    select {
+      case &lt;-notifyCh:
+      case &lt;-tiker.C:
+        // 调用appendEntries
+      case &lt;-resignCh:
+        // ...
+        return
+    }
+  }
+  ```
+  这里想当然地以为notifyCh中有东西也会像ticker到时一样，调用appendEntries，实际上这样写是**错的**。select根本没有fallthrough，switch的fallthrough也要显式写关键字`fallthrough`。https://github.com/golang/go/issues/25676
+https://github.com/golang/go/issues/23196
+这两个PR讨论了原因，也给出了一个不用fallthrough也不用重复代码的写法，上面的代码可以写成
+  ```go
+  ticker := time.NewTicker(heartbeatInterval)
+  for {
+    select {
+      case &lt;-resignCh:
+        // ...
+        return
+      case &lt;-notifyCh:
+      case &lt;-tiker.C: 
+    }
+    // 调用appendEntries
+  }
+  ```
+  上面的代码把公共的调用appendEntries逻辑移到了select外，notifyCh和ticker.C两个case什么都不做，只是不block住，而resignCh的case里调用了return，所以不会执行到下面的逻辑。
+  之前pprof分析不出原因就是因为从Start到ticker触发这段时间整个Raft的所有goroutine都没有占用CPU。</pre>
 </div>
 <div caption="目录" created="20200604164107177" list-after="$:/core/ui/SideBar/Open" modified="20200604164715506" tags="$:/tags/SideBar" title="目录">
 <pre>&lt;div class=&quot;tc-table-of-contents&quot;&gt;
