@@ -13814,13 +13814,13 @@ Error message and password prompt
 <div created="20200604142855270" modified="20200604164835962" title="$:/state/tab-2065006209">
 <pre>$:/core/ui/ControlPanel/Saving/GitHub</pre>
 </div>
-<div created="20200604145237852" modified="20200604165639868" title="$:/state/tab/sidebar--595412856">
-<pre>$:/core/ui/SideBar/Tools</pre>
+<div created="20200604145237852" modified="20200605183151229" title="$:/state/tab/sidebar--595412856">
+<pre>目录</pre>
 </div>
 <div title="$:/status/RequireReloadDueToPluginChange">
 <pre>no</pre>
 </div>
-<div list="素描练习 [[Iterative Drawing]] GettingStarted" title="$:/StoryList">
+<div created="20200605183151782" list="[[6.824 Lab3]] GettingStarted" modified="20200605183151782" title="$:/StoryList">
 <pre></pre>
 </div>
 <div plugin-type="info" title="$:/temp/info-plugin" type="application/json">
@@ -13868,15 +13868,15 @@ Error message and password prompt
         },
         &quot;$:/info/browser/screen/width&quot;: {
             &quot;title&quot;: &quot;$:/info/browser/screen/width&quot;,
-            &quot;text&quot;: &quot;834&quot;
+            &quot;text&quot;: &quot;1920&quot;
         },
         &quot;$:/info/browser/screen/height&quot;: {
             &quot;title&quot;: &quot;$:/info/browser/screen/height&quot;,
-            &quot;text&quot;: &quot;1194&quot;
+            &quot;text&quot;: &quot;1080&quot;
         },
         &quot;$:/info/browser/language&quot;: {
             &quot;title&quot;: &quot;$:/info/browser/language&quot;,
-            &quot;text&quot;: &quot;zh-cn&quot;
+            &quot;text&quot;: &quot;zh&quot;
         }
     }
 }</pre>
@@ -14982,13 +14982,18 @@ This plugin also requires the JSZip plugin ([[$:/plugins/tiddlywiki/jszip]]) to 
 <div created="20200604154110382" modified="20200604154110382" title="$:/themes/tiddlywiki/vanilla/options/stickytitles">
 <pre>yes</pre>
 </div>
-<div created="20200604150045795" modified="20200604164813703" tags="6.824 lab TableOfContents" title="6.824 Lab3" type="text/x-markdown">
+<div created="20200604150045795" modified="20200605184111512" tags="6.824 lab TableOfContents" title="6.824 Lab3" type="text/x-markdown">
 <pre>## Part A
 
 - server要能唯一判断某个请求，只用一个递增id是不够的，因为可能有多个client，所以还需要一个client id（随机）
 - 判断重复只需要在apply op时进行即可，不需要在Start前做判重，因为client成功执行一个op才会执行下一个
 - rpc中等待start的op commit的时候需要设置timeout
 - 监听applyCh的线程唤醒等待中的rpc线程使用一个map[int]chan *Op，键为index，值为容量为1的chan。需要注意在哪里初始化chan，因为可能在rpc线程调用wait前，applyCh就有值过来了，所以需要在wait前和apply唤醒时都检查chan是否存在，不存在需要新建。apply线程还需要在chan已经存在时把chan中的值读出来，防止卡住自己。
+
+## Part B
+
+- 首先要把Log的访问抽象一层，不能直接访问[]LogEntry，因为调用丢弃老日志后，直接用slice index会得到错误的结果，需要保存上次丢弃的最后一个index：LastIncludedIndex
+- 除了所有使用Log的地方需要修改外，还有appendEntries时如果next index&lt;=LastIncludedIndex，那么需要先发送InstallSnapshot到follower，另外appendEntries mismatch的时候decrement next index如果超过了LastIncludedIndex（使用论文第8页左上的方法快速decrement，而不是一次减1），也要InstallSnapshot。还有AppendEntries RPC handler里，判断conflict需要到LastIncludedIndex为止，而不是到0为止。
 
 </pre>
 </div>
