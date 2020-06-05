@@ -14997,7 +14997,7 @@ This plugin also requires the JSZip plugin ([[$:/plugins/tiddlywiki/jszip]]) to 
 <div created="20200604154110382" modified="20200604154110382" title="$:/themes/tiddlywiki/vanilla/options/stickytitles">
 <pre>yes</pre>
 </div>
-<div created="20200604150045795" modified="20200605210916912" tags="6.824 lab TableOfContents" title="6.824 Lab3" type="text/x-markdown">
+<div created="20200604150045795" modified="20200605211123322" tags="6.824 lab TableOfContents" title="6.824 Lab3" type="text/x-markdown">
 <pre>## Part A
 
 - server要能唯一判断某个请求，只用一个递增id是不够的，因为可能有多个client，所以还需要一个client id（随机）
@@ -15024,8 +15024,9 @@ This plugin also requires the JSZip plugin ([[$:/plugins/tiddlywiki/jszip]]) to 
     }
   }
   ```
-  这里想当然地以为notifyCh中有东西也会像ticker到时一样，调用appendEntries，实际上这样写是**错的**。select根本没有fallthrough，switch的fallthrough也要显式写关键字`fallthrough`。https://github.com/golang/go/issues/25676
-https://github.com/golang/go/issues/23196
+  这里想当然地以为notifyCh中有东西也会像ticker到时一样，调用appendEntries，实际上这样写是**错的**。select根本没有fallthrough，switch的fallthrough也要显式写关键字`fallthrough`。
+[proposal: Go 2: permit fallthrough for select statements](https://github.com/golang/go/issues/25676)
+[proposal: spec: select: multiple case expressions or fallthrough keyword](https://github.com/golang/go/issues/23196)
 这两个PR讨论了原因，也给出了一个不用fallthrough也不用重复代码的写法，上面的代码可以写成
   ```go
   ticker := time.NewTicker(heartbeatInterval)
