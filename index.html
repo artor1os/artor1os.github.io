@@ -14997,7 +14997,7 @@ This plugin also requires the JSZip plugin ([[$:/plugins/tiddlywiki/jszip]]) to 
 <div created="20200604154110382" modified="20200604154110382" title="$:/themes/tiddlywiki/vanilla/options/stickytitles">
 <pre>yes</pre>
 </div>
-<div created="20200604150045795" modified="20200606164427240" tags="6.824 lab TableOfContents" title="6.824 Lab3" type="text/x-markdown">
+<div created="20200604150045795" modified="20200606172506097" tags="6.824 lab TableOfContents" title="6.824 Lab3" type="text/x-markdown">
 <pre>## Part A
 
 - server要能唯一判断某个请求，只用一个递增id是不够的，因为可能有多个client，所以还需要一个client id（随机）
@@ -15043,7 +15043,19 @@ This plugin also requires the JSZip plugin ([[$:/plugins/tiddlywiki/jszip]]) to 
   ```
   上面的代码把公共的调用appendEntries逻辑移到了select外，notifyCh和ticker.C两个case什么都不做，只是不block住，而resignCh的case里调用了return，所以不会执行到下面的逻辑。
   之前pprof分析不出原因就是因为从Start到ticker触发这段时间整个Raft的所有goroutine都没有占用CPU。
-- 下一个测试，restart one client，卡了很久，以为是raft的问题试了各种办法，也改进了一下代码。最后发现是重启的时候raft往applyCh发送snapshot，这时候server的监听applyCh的apply goroutine还没起来，就卡住了。把applyCh的容量设为1就能过这个测试了。
+- 下一个测试，restart one client，卡了很久，以为是raft的问题试了各种办法，也改进了一下代码（把apply改成一个单独的goroutine而不是每次commitIndex更新的时候起一个，commitIndex更新的时候用条件变量通知apply。在wait和notify这两个goroutine中，wait额外监听resignCh和notifyCh，notify额外监听resetCh，防止卡死）。最后发现是重启的时候raft往applyCh发送snapshot，这时候server的监听applyCh的apply goroutine还没起来，就卡住了。把applyCh的容量设为1就能过这个测试了。
+- 剩下的测试需要再完善发送和接收installSnapshot。有一些要点论文里没有提到，如下：
+  InstallSnapshot RPC handler中：
+  - 需要重置选举timeout定时器，像AppendEntries一样
+  - 当传进来的LastIncludedIndex小于等于当前的LastIncludedIndex，直接返回，防止过期的InstallSnapshot
+  - 分两种情况。第一种当前log含有传进的LastIncludedIndex，且LastIncludedTerm也对应当前log上的对应index，要保存LastIncludedIndex后面的log，到这里论文都有提到，但是论文说然后直接返回，实际上还要做两件事，一是当LastIncludedIndex&gt;lastApplied时，说明有部分截掉的log没有更新到状态机上，所以要用snapshot来更新状态机，二是需要更新lastApplied和commitIndex，因为只有小于等于lastApplied的index才会被截掉，所以leader传来InstallSnapshot就说明了至少LastIncludedIndex已经commit了，所以如果LastIncludedIndex分别大于lastApplied或commitIndex，就把它们分别设成它。第二种情况是第一种情况以外，容易推断出lastApplied和commitIndex一定小于LastIncludedIndex，所以整个log可以丢掉，同样要设置lastApplied和commitIndex，以及更新状态机。
+
+  leader发送InstallSnapshot的时机：
+  在准备发送AppendEntries时，发现nextIndex &lt;= LastIncludedIndex。接收端的LastIncludedIndex和leader的LastIncludedIndex中较大的那个是用来判断mismatch的底线，因为它一定是commit的，也是match的。通常leader的LastIncludedIndex是较大的那个，所以就可以用nextIndex &lt;= LastIncludedIndex来判断需要进行InstallSnapshot，而mismatch的时候decrement逻辑在需要InstallSnapshot的时候也会把nextIndex decrement到LastIncludedIndex。
+
+  发送InstallSnapshot：
+  若发送失败直接返回，同时准备发送的AppendEntries也直接返回。
+  若发送成功需要把nextIndex设成args.LastIncludedIndex + 1，注意不是leader当前的LastIncludedIndex，发送InstallSnapshot RPC的时候解过锁，所以这两个值可能不一样，前者才符合逻辑。
 </pre>
 </div>
 <div caption="目录" created="20200604164107177" list-after="$:/core/ui/SideBar/Open" modified="20200604164715506" tags="$:/tags/SideBar" title="目录">
