@@ -551,6 +551,8 @@ Error message and password prompt
 
 <li>6.824 Lab3</li>
 
+<li>6.824 Lab4</li>
+
 <li>电子书命名规约</li>
 
 <li>动态规划</li>
@@ -15955,8 +15957,8 @@ exports.context = contextWidget;
 <div created="20200606234337052" modified="20200606234337052" title="$:/state/tag-manager/TableOfContents">
 <pre>open</pre>
 </div>
-<div created="20200607204708552" modified="20200607210242853" title="$:/state/toc/TableOfContents-6.824--580933785">
-<pre>close</pre>
+<div created="20200607204708552" modified="20200613190614968" title="$:/state/toc/TableOfContents-6.824--580933785">
+<pre>open</pre>
 </div>
 <div created="20200607204639092" modified="20200607204700261" title="$:/state/toc/TableOfContents-6.824--599274119">
 <pre>open</pre>
@@ -15970,7 +15972,7 @@ exports.context = contextWidget;
 <div title="$:/status/RequireReloadDueToPluginChange">
 <pre>no</pre>
 </div>
-<div created="20200608193157858" list="[[Idiomatic Go]] About" modified="20200608193157858" title="$:/StoryList">
+<div created="20200613190627280" list="[[6.824 Lab3]] [[6.824 Lab4]] About" modified="20200613190627280" title="$:/StoryList">
 <pre></pre>
 </div>
 <div created="20200519141000553" list="$:/.giffmex/Buttons/more-tiddler-edit-actions $:/core/ui/Buttons/delete $:/core/ui/Buttons/cancel $:/core/ui/Buttons/save" modified="20200521145647980" tags="$:/giffmex/bigeditarea $:/giffmex/stroll" title="$:/tags/EditToolbar">
@@ -16030,15 +16032,15 @@ exports.context = contextWidget;
         },
         &quot;$:/info/browser/screen/width&quot;: {
             &quot;title&quot;: &quot;$:/info/browser/screen/width&quot;,
-            &quot;text&quot;: &quot;834&quot;
+            &quot;text&quot;: &quot;1920&quot;
         },
         &quot;$:/info/browser/screen/height&quot;: {
             &quot;title&quot;: &quot;$:/info/browser/screen/height&quot;,
-            &quot;text&quot;: &quot;1194&quot;
+            &quot;text&quot;: &quot;1080&quot;
         },
         &quot;$:/info/browser/language&quot;: {
             &quot;title&quot;: &quot;$:/info/browser/language&quot;,
-            &quot;text&quot;: &quot;zh-cn&quot;
+            &quot;text&quot;: &quot;zh&quot;
         }
     }
 }</pre>
@@ -17212,6 +17214,50 @@ This plugin also requires the JSZip plugin ([[$:/plugins/tiddlywiki/jszip]]) to 
   发送InstallSnapshot：
   若发送失败直接返回，同时准备发送的AppendEntries也直接返回。
   若发送成功需要把nextIndex设成args.LastIncludedIndex + 1，注意不是leader当前的LastIncludedIndex，发送InstallSnapshot RPC的时候解过锁，所以这两个值可能不一样，前者才符合逻辑。
+</pre>
+</div>
+<div created="20200613190603436" modified="20200613200122053" tags="6.824 TODO" title="6.824 Lab4" type="text/x-markdown">
+<pre>## Part A
+
+基本上与Lab3没什么差别，只是把状态机从kv map换成Config slice
+
+## Part B
+
+- Config改变时需要做什么
+  - 非leader什么都不做
+  - leader写入log：ConfigChange
+  - ConfigChange applied：
+    - 设置变量configChanging为true，拒绝新的client请求，此时已经Start，但未applied的请求应该全部拒绝，防止shard迁移后，shard的状态又被改变，迁移的shard不完整
+    - 启动迁移
+  - 迁移
+    - 新config中，被移除的shard，应调用新RPC Migrate，将shard对应的kv全部迁移到新的Group中
+    - 新获得的shard，需要等待其原Group发送Migrate（如何？）
+    - 被移除的shard和新获得的shard全部迁移成功，将当前config设为新config，写入log：ConfigDone
+  - ConfigDone applied：
+    - 设置变量configChanging为false
+
+Migrate RPC应该只是一系列的Put RPC的合并
+
+感觉不太对，Config的变化需要写入log吗？
+
+写入的话，leader重启会重新再迁移一遍？
+
+不写入的话怎样保证迁移开始到迁移结束过程中，被迁出的shard不会写入新数据
+
+不写入log的逻辑：
+
+- 轮询shardmaster，若有更新的Config，设置configChanging为true
+- 拒绝client新请求，禁止状态写入（如何保证一个Group里所有机器处于同一个状态）
+- 发送Migrate，等待新获得的shard的Migrate
+- 迁移完成，设置configChanging为false
+
+若更改状态机，未返回给client，迁移到了别的Group，如何判断重复？
+
+被迁移的shard的改动client必须已经接收？
+
+迁移过程中机器死了怎么办？
+
+applied的log不能撤销。
 </pre>
 </div>
 <div created="20200607032837528" modified="20200607161828097" title="电子书命名规约">
