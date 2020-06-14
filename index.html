@@ -17216,7 +17216,7 @@ This plugin also requires the JSZip plugin ([[$:/plugins/tiddlywiki/jszip]]) to 
   若发送成功需要把nextIndex设成args.LastIncludedIndex + 1，注意不是leader当前的LastIncludedIndex，发送InstallSnapshot RPC的时候解过锁，所以这两个值可能不一样，前者才符合逻辑。
 </pre>
 </div>
-<div created="20200613190603436" modified="20200614153502909" tags="6.824 TODO" title="6.824 Lab4" type="text/x-markdown">
+<div created="20200613190603436" modified="20200614154735924" tags="6.824 TODO" title="6.824 Lab4" type="text/x-markdown">
 <pre>## Part A
 
 基本上与Lab3没什么差别，只是把状态机从kv map换成Config slice
@@ -17259,6 +17259,8 @@ Migrate RPC应该只是一系列的Put RPC的合并
 
 applied的log不能撤销。
 
+接收shard的group如果Migrate的时候还未poll 新的config怎么办？
+
 **Config Change不写入log**
 
 Config Change包括两个动作：迁移失去的shard，等待新得的shard
@@ -17269,7 +17271,7 @@ Config Change时只能禁止失去的shard的状态写入，不能禁止其他�
 
 Config Change时不拒绝非失去的shard的请求
 
-过了前两个测试
+过了前两个测试，JoinLeave有概率死锁
 </pre>
 </div>
 <div created="20200607032837528" modified="20200607161828097" title="电子书命名规约">
