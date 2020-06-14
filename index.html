@@ -15972,7 +15972,7 @@ exports.context = contextWidget;
 <div title="$:/status/RequireReloadDueToPluginChange">
 <pre>no</pre>
 </div>
-<div created="20200613190627280" list="[[6.824 Lab3]] [[6.824 Lab4]] About" modified="20200613190627280" title="$:/StoryList">
+<div created="20200614152933903" list="[[6.824 Lab4]] About" modified="20200614152933903" title="$:/StoryList">
 <pre></pre>
 </div>
 <div created="20200519141000553" list="$:/.giffmex/Buttons/more-tiddler-edit-actions $:/core/ui/Buttons/delete $:/core/ui/Buttons/cancel $:/core/ui/Buttons/save" modified="20200521145647980" tags="$:/giffmex/bigeditarea $:/giffmex/stroll" title="$:/tags/EditToolbar">
@@ -17216,7 +17216,7 @@ This plugin also requires the JSZip plugin ([[$:/plugins/tiddlywiki/jszip]]) to 
   若发送成功需要把nextIndex设成args.LastIncludedIndex + 1，注意不是leader当前的LastIncludedIndex，发送InstallSnapshot RPC的时候解过锁，所以这两个值可能不一样，前者才符合逻辑。
 </pre>
 </div>
-<div created="20200613190603436" modified="20200613200122053" tags="6.824 TODO" title="6.824 Lab4" type="text/x-markdown">
+<div created="20200613190603436" modified="20200614153502909" tags="6.824 TODO" title="6.824 Lab4" type="text/x-markdown">
 <pre>## Part A
 
 基本上与Lab3没什么差别，只是把状态机从kv map换成Config slice
@@ -17258,6 +17258,18 @@ Migrate RPC应该只是一系列的Put RPC的合并
 迁移过程中机器死了怎么办？
 
 applied的log不能撤销。
+
+**Config Change不写入log**
+
+Config Change包括两个动作：迁移失去的shard，等待新得的shard
+
+Config Change本身不应该和状态机有关系，通过调用接口来改变状态机
+
+Config Change时只能禁止失去的shard的状态写入，不能禁止其他的状态写入
+
+Config Change时不拒绝非失去的shard的请求
+
+过了前两个测试
 </pre>
 </div>
 <div created="20200607032837528" modified="20200607161828097" title="电子书命名规约">
