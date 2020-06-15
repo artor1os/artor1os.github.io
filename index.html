@@ -15972,7 +15972,7 @@ exports.context = contextWidget;
 <div title="$:/status/RequireReloadDueToPluginChange">
 <pre>no</pre>
 </div>
-<div created="20200614152933903" list="[[6.824 Lab4]] About" modified="20200614152933903" title="$:/StoryList">
+<div created="20200615165150978" list="[[6.824 Lab4]] About" modified="20200615165157240" title="$:/StoryList">
 <pre></pre>
 </div>
 <div created="20200519141000553" list="$:/.giffmex/Buttons/more-tiddler-edit-actions $:/core/ui/Buttons/delete $:/core/ui/Buttons/cancel $:/core/ui/Buttons/save" modified="20200521145647980" tags="$:/giffmex/bigeditarea $:/giffmex/stroll" title="$:/tags/EditToolbar">
@@ -17216,7 +17216,7 @@ This plugin also requires the JSZip plugin ([[$:/plugins/tiddlywiki/jszip]]) to 
   若发送成功需要把nextIndex设成args.LastIncludedIndex + 1，注意不是leader当前的LastIncludedIndex，发送InstallSnapshot RPC的时候解过锁，所以这两个值可能不一样，前者才符合逻辑。
 </pre>
 </div>
-<div created="20200613190603436" modified="20200614154735924" tags="6.824 TODO" title="6.824 Lab4" type="text/x-markdown">
+<div created="20200613190603436" modified="20200615205221670" tags="6.824 TODO" title="6.824 Lab4" type="text/x-markdown">
 <pre>## Part A
 
 基本上与Lab3没什么差别，只是把状态机从kv map换成Config slice
@@ -17272,6 +17272,28 @@ Config Change时只能禁止失去的shard的状态写入，不能禁止其他�
 Config Change时不拒绝非失去的shard的请求
 
 过了前两个测试，JoinLeave有概率死锁
+
+死锁是因为在kv的lock里面调用了raft的GetState
+
+初始化问题：正常时候可以保证迁移是顺序进行的，除了初始化的时候，所以新加入的机器应该怎样初始化？应该立即获取最新配置，更新servedShards，如果config的Num大于1，还需更新waitingShards
+
+过了前三个测试，没有死锁
+
+把pollConfig里面的Query的参数从-1换成当前configNum+1可以过MissChange测试。
+
+不能只有leader发送Migrate，因为不能在锁里判断当前是不是leader，会死锁，如果在锁外判断的话就有可能全都不是leader。Migrate需要判重，暂时使用configNum和shard来判重。
+
+100次MissChange测试有大概2次得到数据不匹配的错误，猜测可能跟并发的put和config change有关，即下一个测试
+
+Concurrent1测试，有数据丢失
+
+原因如下：
+
+shard被分配到102和101两个group里，然后关闭所有group，改变配置，对102调用leave，**此时102并没有启动迁移**，然后再以100，101，102的顺序启动group，此时shard的分配里只剩101，101读取配置却没有从102中拿取没有迁移的shard就对客户端开放服务了。
+
+根本原因：group重启后并不知道当前拥有的shard的迁移是否完成
+
+解决方案：需要持久化ConfigChange，也就是ConfigChange还是要写入log
 </pre>
 </div>
 <div created="20200607032837528" modified="20200607161828097" title="电子书命名规约">
