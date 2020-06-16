@@ -15972,7 +15972,7 @@ exports.context = contextWidget;
 <div title="$:/status/RequireReloadDueToPluginChange">
 <pre>no</pre>
 </div>
-<div created="20200616102927641" list="[[6.824 Lab4]] About" modified="20200616102927641" title="$:/StoryList">
+<div created="20200616184914886" list="[[6.824 Lab4]] About" modified="20200616184914886" title="$:/StoryList">
 <pre></pre>
 </div>
 <div created="20200519141000553" list="$:/.giffmex/Buttons/more-tiddler-edit-actions $:/core/ui/Buttons/delete $:/core/ui/Buttons/cancel $:/core/ui/Buttons/save" modified="20200521145647980" tags="$:/giffmex/bigeditarea $:/giffmex/stroll" title="$:/tags/EditToolbar">
@@ -17216,7 +17216,7 @@ This plugin also requires the JSZip plugin ([[$:/plugins/tiddlywiki/jszip]]) to 
   若发送成功需要把nextIndex设成args.LastIncludedIndex + 1，注意不是leader当前的LastIncludedIndex，发送InstallSnapshot RPC的时候解过锁，所以这两个值可能不一样，前者才符合逻辑。
 </pre>
 </div>
-<div created="20200613190603436" modified="20200616184333868" tags="6.824 TODO" title="6.824 Lab4" type="text/x-markdown">
+<div created="20200613190603436" modified="20200616185048003" tags="6.824 TODO" title="6.824 Lab4" type="text/x-markdown">
 <pre>## Part A
 
 基本上与Lab3没什么差别，只是把状态机从kv map换成Config slice
@@ -17324,6 +17324,25 @@ Unreliable2又出现了重复的问题，原因是applyOp中MigrateOp的lastComm
 首先servedShards必须不能有shard，且迁移返回成功。做了之后仍然有小概率出错，继续排查原因。
 
 重放log的时候的迁移后删除会发生什么？
+
+出现了奇怪的问题
+
+2020/06/17 02:38:07 gid 102, me 2:	applyOp: ConfigOp, &amp;shardmaster.Config{Num:9, Shards:[10]int{100, 100, 100, 100, 100, 100, 100, 100, 100, 100}, Groups:map[int][]string{100:[]string{&quot;server-100-0&quot;, &quot;server-100-1&quot;, &quot;server-100-2&quot;}}}
+2020/06/17 02:38:07 gid 102, me 2:	migrate: shard 0, from 102, to 100
+2020/06/17 02:38:07 gid 102, me 2:	migrate: shard 2, from 102, to 100
+2020/06/17 02:38:07 gid 102, me 2:	migrate: shard 3, from 102, to 100
+2020/06/17 02:38:07 gid 102, me 2:	migrate: shard 4, from 102, to 100
+2020/06/17 02:38:07 gid 102, me 2:	migrate: shard 6, from 102, to 100
+2020/06/17 02:38:07 gid 102, me 2:	applyOp: ConfigOp, after, &amp;shardkv.shardManager{GID:102, ConfigNum:9, ServedShards:shardkv.set{}, WaitingShards:shardkv.set{}, MigratingShards:shardkv.set{0:true, 2:true, 3:true, 4:true, 6:true}, Config:(*shardmaster.Config)(0xc0007c2ea0)}
+2020/06/17 02:38:07 gid 102, me 2:	applyOp: ConfigOp, &amp;shardmaster.Config{Num:10, Shards:[10]int{102, 102, 102, 102, 102, 100, 100, 100, 100, 100}, Groups:map[int][]string{100:[]string{&quot;server-100-0&quot;, &quot;server-100-1&quot;, &quot;server-100-2&quot;}, 102:[]string{&quot;server-102-0&quot;, &quot;server-102-1&quot;, &quot;server-102-2&quot;}}}
+2020/06/17 02:38:07 gid 102, me 2:	migrate: shard 0, from 102, to 102
+2020/06/17 02:38:07 gid 102, me 2:	migrate: shard 2, from 102, to 102
+2020/06/17 02:38:07 gid 102, me 2:	migrate: shard 3, from 102, to 102
+2020/06/17 02:38:07 gid 102, me 2:	migrate: shard 4, from 102, to 102
+2020/06/17 02:38:07 gid 102, me 2:	migrate: shard 6, from 102, to 100
+2020/06/17 02:38:07 gid 102, me 2:	applyOp: ConfigOp, after, &amp;shardkv.shardManager{GID:102, ConfigNum:10, ServedShards:shardkv.set{0:true, 1:true, 2:true, 3:true, 4:true}, WaitingShards:shardkv.set{0:true, 1:true, 2:true, 3:true, 4:true}, MigratingShards:shardkv.set{0:true, 2:true, 3:true, 4:true, 6:true}, Config:(*shardmaster.Config)(0xc000556d80)}
+
+有些逻辑错误可能之前的测试没有查出来，之后再仔细检查。
 
 
 
