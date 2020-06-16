@@ -17216,7 +17216,7 @@ This plugin also requires the JSZip plugin ([[$:/plugins/tiddlywiki/jszip]]) to 
   若发送成功需要把nextIndex设成args.LastIncludedIndex + 1，注意不是leader当前的LastIncludedIndex，发送InstallSnapshot RPC的时候解过锁，所以这两个值可能不一样，前者才符合逻辑。
 </pre>
 </div>
-<div created="20200613190603436" modified="20200616170213198" tags="6.824 TODO" title="6.824 Lab4" type="text/x-markdown">
+<div created="20200613190603436" modified="20200616184333868" tags="6.824 TODO" title="6.824 Lab4" type="text/x-markdown">
 <pre>## Part A
 
 基本上与Lab3没什么差别，只是把状态机从kv map换成Config slice
@@ -17314,6 +17314,22 @@ Concurrent2中出现了重放log的时候ConfigOp被drop的问题，applyOp时dr
 Unreliable2又出现了重复的问题，原因是applyOp中MigrateOp的lastCommited更新逻辑不对，直接判断大小来更新，没有更新本地lastCommited没有的CID，应先判断是否存在再判断大小。
 
 改完就全过了，还剩challenge
+
+## Challenge
+
+1. 垃圾回收
+
+什么时候删除一个shard是绝对安全的？
+
+首先servedShards必须不能有shard，且迁移返回成功。做了之后仍然有小概率出错，继续排查原因。
+
+重放log的时候的迁移后删除会发生什么？
+
+
+
+2. 配置变更时接收用户请求
+
+这个实现基本要求的时候就实现了，重要的点是超前接收Migrate
 
 </pre>
 </div>
