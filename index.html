@@ -15972,7 +15972,7 @@ exports.context = contextWidget;
 <div title="$:/status/RequireReloadDueToPluginChange">
 <pre>no</pre>
 </div>
-<div created="20200615205633537" list="[[6.824 Lab4]] About" modified="20200615205633537" title="$:/StoryList">
+<div created="20200616102927641" list="[[6.824 Lab4]] About" modified="20200616102927641" title="$:/StoryList">
 <pre></pre>
 </div>
 <div created="20200519141000553" list="$:/.giffmex/Buttons/more-tiddler-edit-actions $:/core/ui/Buttons/delete $:/core/ui/Buttons/cancel $:/core/ui/Buttons/save" modified="20200521145647980" tags="$:/giffmex/bigeditarea $:/giffmex/stroll" title="$:/tags/EditToolbar">
@@ -17216,7 +17216,7 @@ This plugin also requires the JSZip plugin ([[$:/plugins/tiddlywiki/jszip]]) to 
   若发送成功需要把nextIndex设成args.LastIncludedIndex + 1，注意不是leader当前的LastIncludedIndex，发送InstallSnapshot RPC的时候解过锁，所以这两个值可能不一样，前者才符合逻辑。
 </pre>
 </div>
-<div created="20200613190603436" modified="20200615210506868" tags="6.824 TODO" title="6.824 Lab4" type="text/x-markdown">
+<div created="20200613190603436" modified="20200616170213198" tags="6.824 TODO" title="6.824 Lab4" type="text/x-markdown">
 <pre>## Part A
 
 基本上与Lab3没什么差别，只是把状态机从kv map换成Config slice
@@ -17295,11 +17295,26 @@ shard被分配到102和101两个group里，然后关闭所有group，改变配�
 
 解决方案：需要持久化ConfigChange，也就是ConfigChange还是要写入log
 
-需要写入的数据包括，configNum，新增的shard，移除的shard，写入时并不更新servedShards和waitingShards
+只需要写入Config
 
-当applied时，需要根据新增的shard和servedShards（可能被提前到来的Migrate更新）更新waitingShards和servedShards，根据移除的shard发送Migrate
+当applied时，需要根据新增的shard和servedShards（可能被提前到来的Migrate更新）更新waitingShards和servedShards，根据移除的shard发送Migrate（先更新migratingShards）
 
 Migrate会增加servedShards，减少waitingShards，考虑在对应configNum applied前applied，那么当config applied的时候，servedShards已经有需要迁移的shard了，所以waitingShards不会重复添加。
+
+修改成写入log之后，出现许多问题，主要是Config和Migrate两个op的顺序问题，改好后过前4个测试，Concurrent1小概率出错，检查发现是某个Append重复了，这个Append第一次出现写完后机器重启了。
+
+所以原因很可能是在第一次Append的机器applied后，客户端没有收到返回请求就全部重启了，重启后开始迁移，迁移到另一台机器后，客户端再次发送这个Append，另一台机器就不知道是否重复了。
+
+如何跨机器判断请求重复？现在只有本地持久化的lastCommited可以本地判断请求重复，把lastCommited也迁移过去吗？确实，经过100次测试Concurrent1过了
+
+测试命令：for i in `seq 1 100`; go test -run xxx || break
+
+Concurrent2中出现了重放log的时候ConfigOp被drop的问题，applyOp时drop Config的条件应该是!waitingShards.Empty() 而不是!waitingShards.Empty() || !migratingShards.Empty()，修改后就能过Concurrent2了
+
+Unreliable2又出现了重复的问题，原因是applyOp中MigrateOp的lastCommited更新逻辑不对，直接判断大小来更新，没有更新本地lastCommited没有的CID，应先判断是否存在再判断大小。
+
+改完就全过了，还剩challenge
+
 </pre>
 </div>
 <div created="20200607032837528" modified="20200607161828097" title="电子书命名规约">
