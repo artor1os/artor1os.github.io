@@ -623,6 +623,8 @@ Error message and password prompt
 
 <li>Transactional Information Systems</li>
 
+<li>vim key binding 到命令模式时为什么要加ctrl-U</li>
+
 <li>Vim list</li>
 
 </ul>
@@ -15992,7 +15994,7 @@ exports.context = contextWidget;
 <div title="$:/status/RequireReloadDueToPluginChange">
 <pre>no</pre>
 </div>
-<div created="20200802191820013" list="[[Vim list]] About" modified="20200802191820013" title="$:/StoryList">
+<div list="[[vim key binding 到命令模式时为什么要加ctrl-U]] About" title="$:/StoryList">
 <pre></pre>
 </div>
 <div created="20200519141000553" list="$:/.giffmex/Buttons/more-tiddler-edit-actions $:/core/ui/Buttons/delete $:/core/ui/Buttons/cancel $:/core/ui/Buttons/save" modified="20200521145647980" tags="$:/giffmex/bigeditarea $:/giffmex/stroll" title="$:/tags/EditToolbar">
@@ -17932,6 +17934,15 @@ thaw 溶解 和freeze配合使用</pre>
 </div>
 <div created="20200607161651667" modified="20200619144448522" tags="ebook 分布式系统" title="Transactional Information Systems">
 <pre></pre>
+</div>
+<div created="20200804175736637" modified="20200804180421675" tags="vim" title="vim key binding 到命令模式时为什么要加ctrl-U">
+<pre>进入命令模式以后ctrl开头的编辑命令也可以使用，ctrl-U即清除所有内容。
+
+在key binding到命令模式的时候使用ctrl-U是为了清除不小心触发的range
+
+比如普通模式下输入5: 进入命令模式后就会发现已经输入了一些内容，即range。
+
+如果把&amp;lt;Leader&amp;gt;x绑定到:NERDTreeToggle&amp;lt;CR&amp;gt;，那么按5&amp;lt;Leader&amp;gt;x就会出错，所以要绑定到:&amp;lt;C-u&amp;gt;NERDTreeToggle&amp;lt;CR&amp;gt;</pre>
 </div>
 <div created="20200802185553329" modified="20200802192045477" tags="vim TODO" title="Vim list" type="text/x-markdown">
 <pre># 移动
