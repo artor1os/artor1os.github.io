@@ -567,6 +567,8 @@ Error message and password prompt
 
 <li>个人Wiki</li>
 
+<li>开发效率</li>
+
 <li>论文命名规约</li>
 
 <li>目录</li>
@@ -15944,8 +15946,8 @@ exports.context = contextWidget;
 <div created="20200604145542727" modified="20200604163959092" title="$:/state/plugin-info-1088025932-$:/languages/zh-Hans">
 <pre>no</pre>
 </div>
-<div created="20200604150129043" modified="20200620152715441" title="$:/state/showeditpreview">
-<pre>no</pre>
+<div created="20200604150129043" modified="20200905000938811" title="$:/state/showeditpreview">
+<pre>yes</pre>
 </div>
 <div created="20200604154058804" modified="20200604165854456" title="$:/state/tab--1963855381">
 <pre>$:/themes/tiddlywiki/vanilla/themetweaks</pre>
@@ -15998,7 +16000,7 @@ exports.context = contextWidget;
 <div title="$:/status/RequireReloadDueToPluginChange">
 <pre>no</pre>
 </div>
-<div created="20200901161344615" list="$:/ControlPanel About" modified="20200901161344615" title="$:/StoryList">
+<div list="开发效率" title="$:/StoryList">
 <pre></pre>
 </div>
 <div created="20200519141000553" list="$:/.giffmex/Buttons/more-tiddler-edit-actions $:/core/ui/Buttons/delete $:/core/ui/Buttons/cancel $:/core/ui/Buttons/save" modified="20200521145647980" tags="$:/giffmex/bigeditarea $:/giffmex/stroll" title="$:/tags/EditToolbar">
@@ -16058,15 +16060,15 @@ exports.context = contextWidget;
         },
         &quot;$:/info/browser/screen/width&quot;: {
             &quot;title&quot;: &quot;$:/info/browser/screen/width&quot;,
-            &quot;text&quot;: &quot;834&quot;
+            &quot;text&quot;: &quot;2560&quot;
         },
         &quot;$:/info/browser/screen/height&quot;: {
             &quot;title&quot;: &quot;$:/info/browser/screen/height&quot;,
-            &quot;text&quot;: &quot;1194&quot;
+            &quot;text&quot;: &quot;1440&quot;
         },
         &quot;$:/info/browser/language&quot;: {
             &quot;title&quot;: &quot;$:/info/browser/language&quot;,
-            &quot;text&quot;: &quot;zh-cn&quot;
+            &quot;text&quot;: &quot;zh&quot;
         }
     }
 }</pre>
@@ -17587,6 +17589,250 @@ https://github.com/chrislusf/seaweedfs/tree/master/weed/command
 !! 归档
 
 以年为单位对Wiki进行归档，对于TiddlyWiki只需要备份一下整个html文件就可以了</pre>
+</div>
+<div created="20200904235546326" modified="20200905024249955" tags="TODO" title="开发效率" type="text/x-markdown">
+<pre>## 规范化
+
+### 代码规范
+
+#### 命名
+
+##### 不要使用非公认的缩写
+
+所谓公认缩写：
+
+- app，sync，config，conf，cfg，iter，info，calc，misc，util，pkg，dev，prod，elem，mem，buf，req，resp，gen
+
+反例：
+
+- label-&gt;lbl
+- element-&gt;ele
+- test-&gt;tst
+- query-&gt;qry
+
+主要靠感觉，公认的缩写频繁地出现在开源项目和标准库中，此外的缩写不要使用，特别是把一个简短的单词去元音的缩写
+
+另一种可接受的缩写是领域内常用的缩写，比如数学库中的各种函数。
+
+i，j等名字并不算缩写，算是惯例。
+
+在上下文充足的情况下，使用单字母或者双字母的变量可以有效提高代码可读性。
+
+比如一个BuildQuery函数中，使用q而非query作为局部变量。
+
+
+##### s or not s
+
+大原则：一致（consistent），跟随语言惯例
+
+go为例，包名一般不加s，如util而非utils，不过也有反例，比如errors，和可能加入标准库的slices，maps，不过这里的s也不表示复数，只是解决命名冲突罢了。
+map类型的变量不加s，也不后缀Map，一般map的取值赋值用法就已经清晰地表示这是个map，不必再冗余。
+slice类型的变量加s。
+变量命名中有名词+名词的组合词，前面的修饰名词不加s，userService而非usersService，这是英语语法规定。
+
+##### 惯例
+
+go常见惯例：
+
+- WithXXX，表示初始化选项
+- Must，一般接收一个有两个返回值，第二个是error的函数，然后有error就panic，最后只返回第一个值
+- XXXer，表示接口，此接口有一个XXX函数，一般来说接口的函数越少越好
+- ErrXXX，表示错误变量
+- XXXError，表示错误类型（type）
+
+#### 结构
+
+##### 目录结构
+
+少分目录，多分文件：
+
+- 多目录造成：循环依赖，引用变长，非必要的导出成员
+
+惯例：
+
+TODO
+
+##### 函数签名
+
+- receiver简短
+- 上下文充足的情况下（函数名，参数类型），参数名尽量简短
+- 多返回值时，给每个返回值标上名字，好处：清晰，return的时候简短，返回值名同参数名，尽量简短
+
+##### 函数长度
+
+50行
+
+##### if嵌套
+
+3层
+
+return early
+
+抽出函数
+
+##### 声明顺序
+
+1. 常量
+2. 错误变量
+3. 全局变量
+4. helper function
+5. inteface
+6. struct
+7. NewXXX
+8. 方法
+
+#### Best Practices
+
+* 使用context包
+* 使用errors包
+TODO 补充
+
+#### 注释
+
+* 英文
+* 自然语言（大写开头，标点）
+* 写必要的注释
+
+##### When to comment
+
+* 基础包和基础模块的godoc类型的注释
+* tricky
+* 业务代码中特殊业务处理的注释
+* 引用代码注释
+
+##### When not to comment
+
+* 业务处理的godoc类型的注释
+* trivial
+* 代码的整体设计和实现细节，放到文档里
+* 一般业务流程，也放文档里
+
+##### How to comment
+
+godoc类型注释：
+
+* 包注释可以一句话描述包作用
+* 函数注释需要标明作用，错误类型和错误条件，参数特殊约定，枚举参数可选值，是否panic，（线程安全，内存复制，block，副作用，全局变量）
+* 结构体注释标明（期望）实现的接口，关联类型，关联全局变量，关联错误类型和错误变量
+
+代码中注释：
+
+* 不要使用行内注释
+* 记住此类注释的作用是引入读者所需的上下文
+
+### Git branching规范化
+
+* git bisect
+
+### Commit规范化
+* 标题英文
+* 大写，祈使句，句尾无符号
+* 动词开头-Update，Fix，Add，Support，Don't，Make，Restore，Clear，Refactor，Remove，Drop，Refine
+* Title——What，Body——Why，Comment——How
+* Squash时留下每个Commit的标题，把Squash的标题换为总结并重新写Body
+* 更频繁地Commit
+* 有意义地Commit
+* 在Body中解释问题背景，动机等（可用中文）
+* 可选：前缀标识类型：feat，fix，refactor，chore，style，test，docs
+
+Example from [Tim Pope](https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html)：
+
+&gt; Capitalized, short (50 chars or less) summary
+&gt;
+&gt; More detailed explanatory text, if necessary.  Wrap it to about 72
+&gt; characters or so.  In some contexts, the first line is treated as the
+&gt; subject of an email and the rest of the text as the body.  The blank
+&gt; line separating the summary from the body is critical (unless you omit
+&gt; the body entirely); tools like rebase can get confused if you run the
+&gt; two together.
+&gt;
+&gt; Write your commit message in the imperative: &quot;Fix bug&quot; and not &quot;Fixed bug&quot;
+&gt; or &quot;Fixes bug.&quot;  This convention matches up with commit messages generated
+&gt; by commands like git merge and git revert.
+&gt; 
+&gt; Further paragraphs come after blank lines.
+&gt;
+&gt; - Bullet points are okay, too
+&gt;
+&gt; - Typically a hyphen or asterisk is used for the bullet, followed by a
+&gt;  single space, with blank lines in between, but conventions vary here
+&gt;
+&gt; - Use a hanging indent
+&gt;
+&gt; If you use an issue tracker, add a reference(s) to them at the bottom,
+&gt; like so:
+&gt;
+&gt; Resolves: #123
+
+Reference：
+- https://hashnode.com/post/which-commit-message-convention-do-you-use-at-work-ck3e4jbdd00zyo4s1h7mc7e0g
+![example](https://cdn.hashnode.com/res/hashnode/image/upload/v1577374984862/Q7QGKgtEB.png?auto=format&amp;q=60)
+ 
+### 日志规范化
+
+#### 使用正确的Level
+
+Debug，Info，Notice，Warn，Error，Fatal
+
+* Debug： 自测使用，尽量少，如果是为了线上定位问题，使用Info
+* Info：程序运行记录，一般与一条或多条Error相关联
+* Notice：外部调用信息，RPC，HTTP等
+* Warn：预料外的结果，但未造成错误
+* Error：出错
+* Fatal：无法初始化等使程序无法运行的错误
+
+#### message规范
+
+* 英文，过去时，进行时，无主语，或者说默认主语是The system
+* 不要使用除首字母缩略词外的缩写（URL √，config ×），除非想表示程序的字面量，比如函数名，包名
+* 可省略的谓语：Had no permission -&gt; No permission，Had been granted permission -&gt; Granted permission
+   NOTE: Granted permission vs. Granted sb. permission，前者是被动语态省略谓语，后者是主动语态
+* 大写开头，句号结尾
+* 如果日志库有field功能，比如[logrus](https://github.com/sirupsen/logrus/blob/6699a89a232f3db797f2e280639854bbc4b89725/logger.go#L112)，那么使用field来记录上下文，比如err，roomID，url等等。
+* 如果没有field，则考虑使用格式化的message来代替，一个例子：
+logs.Errorf(&quot;Failed to open file. filepath=%v, err=%v&quot;, filepath, err)
+此格式需要是容易解析的（有明确分隔符）
+
+#### 使用规范
+
+* 不要用连续的日志来构建上下文，日志应该是独立可读的
+* 尽量使用带context的日志方法，并且在context里放上logid
+
+不合适的日志
+
+* 一个高QPS的处理函数不适合打日志，用metric等方法代替，也可以batch一段时间再输出这段时间的结果
+* 基础包不适合打日志，基础包与业务无关，边界很明显，单元测试和集成测试即可以保证行为正确，对于错误情况返回错误给调用者来决定打不打日志。
+
+## 离线环境
+
+### 导出用户输入
+
+* 日志导出
+* 日志解析工具
+* 打点，trace导出
+
+### 复现用户输出
+
+* 用户侧输出记录
+  * 错误日志
+  * bug记录
+  * 反馈记录
+
+### 环境模拟（网络，依赖）
+
+* 限流模拟
+* 丢包模拟
+* 依赖不可用模拟
+
+### 指标记录
+TODO
+
+## 调试工具
+
+### 脚本仓库
+TODO
+
+</pre>
 </div>
 <div created="20200607032837531" modified="20200607033456383" title="论文命名规约">
 <pre>以论文标题为名</pre>
