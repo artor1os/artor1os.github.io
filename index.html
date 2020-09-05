@@ -16000,7 +16000,7 @@ exports.context = contextWidget;
 <div title="$:/status/RequireReloadDueToPluginChange">
 <pre>no</pre>
 </div>
-<div list="开发效率" title="$:/StoryList">
+<div created="20200905140548370" list="开发效率 About" modified="20200905140548370" title="$:/StoryList">
 <pre></pre>
 </div>
 <div created="20200519141000553" list="$:/.giffmex/Buttons/more-tiddler-edit-actions $:/core/ui/Buttons/delete $:/core/ui/Buttons/cancel $:/core/ui/Buttons/save" modified="20200521145647980" tags="$:/giffmex/bigeditarea $:/giffmex/stroll" title="$:/tags/EditToolbar">
@@ -17590,7 +17590,7 @@ https://github.com/chrislusf/seaweedfs/tree/master/weed/command
 
 以年为单位对Wiki进行归档，对于TiddlyWiki只需要备份一下整个html文件就可以了</pre>
 </div>
-<div created="20200904235546326" modified="20200905024249955" tags="TODO" title="开发效率" type="text/x-markdown">
+<div created="20200904235546326" modified="20200905142004036" tags="TODO" title="开发效率" type="text/x-markdown">
 <pre>## 规范化
 
 ### 代码规范
@@ -17767,6 +17767,25 @@ Example from [Tim Pope](https://tbaggery.com/2008/04/19/a-note-about-git-commit-
 Reference：
 - https://hashnode.com/post/which-commit-message-convention-do-you-use-at-work-ck3e4jbdd00zyo4s1h7mc7e0g
 ![example](https://cdn.hashnode.com/res/hashnode/image/upload/v1577374984862/Q7QGKgtEB.png?auto=format&amp;q=60)
+
+### Code Review规范
+
+MR的title和body按照commit message规范来
+
+body中需要清晰的解释改动背景，可以引用文档链接
+
+规则限制：1个approve，手动指定assignee，assignee如果认为有必要可以请求另一人review
+
+Review message留在comment中（就算已经使用IM或者面对面沟通，在gitlab上留下记录方便后续查看），可用中文，不过一般简单的英文就足够了
+
+检查点：
+
+* 风格：命名，结构，嵌套，目录
+* 日志：message规范，使用规范，level，是否足够
+* 注释：如果assignee认为author需要添加注释，author可以请求第三人判断是否需要添加
+* 单元测试：是否能验证程序行为
+* 冗余设计：非必要的模式（单例，过度抽象）
+* Best Practices：assignee认为某个地方有best practices的写法，可以标注，author可请求第三人判断
  
 ### 日志规范化
 
