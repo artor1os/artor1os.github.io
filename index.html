@@ -16004,7 +16004,7 @@ exports.context = contextWidget;
 <div title="$:/status/RequireReloadDueToPluginChange">
 <pre>no</pre>
 </div>
-<div created="20201016171702813" list="Paper 源码阅读 About" modified="20201016172743974" title="$:/StoryList">
+<div created="20201017092448722" list="源码阅读" modified="20201017092448722" title="$:/StoryList">
 <pre></pre>
 </div>
 <div created="20200519141000553" list="$:/.giffmex/Buttons/more-tiddler-edit-actions $:/core/ui/Buttons/delete $:/core/ui/Buttons/cancel $:/core/ui/Buttons/save" modified="20200521145647980" tags="$:/giffmex/bigeditarea $:/giffmex/stroll" title="$:/tags/EditToolbar">
@@ -18017,7 +18017,7 @@ DType powMod(DType a, DType b, DType m) {
 <div created="20200621034335917" modified="20200621034409585" tags="" title="随想">
 <pre>kafka是一个CA系统，而raft是CP</pre>
 </div>
-<div created="20201016144230583" modified="20201016215931666" tags="" title="源码阅读" type="text/x-markdown">
+<div created="20201016144230583" modified="20201017093307590" tags="" title="源码阅读" type="text/x-markdown">
 <pre>## Redis
 ### Topics
 * sds，自定义字符串实现
@@ -18025,6 +18025,16 @@ DType powMod(DType a, DType b, DType m) {
 * 哈希表：冲突，rehash，渐进rehash
 * 跳表
 * 整数集合
+* 压缩表
+* ADT：STRING，LIST，HASH，SET，ZSET
+* ADT的实现（encoding）
+   - STRING：INT，EMBSTR，RAW（sds）
+   - LIST：ziplist，linkedlist
+   - HASH：ziplist，dict
+   - SET：intset，dict
+   - ZSET：ziplist，skiplist+dict
+* 编码转换
+* 自定义类型系统：类型检查，GC，LRU，对象共享，运行时多态
 * c语言泛型，编译时多态（函数指针）</pre>
 </div>
 <div created="20200607214348906" modified="20200607215005684" tags="算法 TODO" title="质因数分解">
