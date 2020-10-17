@@ -18017,7 +18017,7 @@ DType powMod(DType a, DType b, DType m) {
 <div created="20200621034335917" modified="20200621034409585" tags="" title="随想">
 <pre>kafka是一个CA系统，而raft是CP</pre>
 </div>
-<div created="20201016144230583" modified="20201017093540725" tags="" title="源码阅读" type="text/x-markdown">
+<div created="20201016144230583" modified="20201017180436956" tags="" title="源码阅读" type="text/x-markdown">
 <pre>## Redis
 ### Topics
 * sds，自定义字符串实现：c内存管理范式，header+blocks
@@ -18035,7 +18035,11 @@ DType powMod(DType a, DType b, DType m) {
    - ZSET：ziplist，skiplist+dict
 * 编码转换
 * 自定义类型系统：类型检查，GC，LRU，对象共享，运行时多态
-* c语言泛型，编译时多态（函数指针）</pre>
+* c语言泛型，编译时多态（函数指针）
+* 数据库：使用dict实现，过期字典，删除策略，数据库通知
+* RDB持久化：定时持久化，子进程持久化，编码
+* AOF：同步，重写，子进程重写及同步
+* 事件驱动：IO多路复用，事件分发</pre>
 </div>
 <div created="20200607214348906" modified="20200607215005684" tags="算法 TODO" title="质因数分解">
 <pre>Pollard's rho
