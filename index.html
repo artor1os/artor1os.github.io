@@ -583,8 +583,6 @@ Error message and password prompt
 
 <li>随想</li>
 
-<li>源码阅读</li>
-
 <li>质因数分解</li>
 
 <li>About</li>
@@ -607,6 +605,10 @@ Error message and password prompt
 
 <li>Iterative Drawing</li>
 
+<li>Linux epoll</li>
+
+<li>Linux select</li>
+
 <li>Morris Traversal方法遍历二叉树（非递归，不用栈，O(1)空间）</li>
 
 <li>Naming Convention</li>
@@ -616,6 +618,10 @@ Error message and password prompt
 <li>Parsing Techniques</li>
 
 <li>Reading list</li>
+
+<li>Redis - ae 事件处理模块</li>
+
+<li>Redis 3.0</li>
 
 <li>Redis 源码阅读</li>
 
@@ -16004,7 +16010,7 @@ exports.context = contextWidget;
 <div title="$:/status/RequireReloadDueToPluginChange">
 <pre>no</pre>
 </div>
-<div created="20201018025516656" list="源码阅读 About" modified="20201018025516656" title="$:/StoryList">
+<div created="20201018140655912" list="[[Linux select]] [[Linux epoll]] [[Redis - ae 事件处理模块]] [[Redis 3.0]] About" modified="20201018144310103" title="$:/StoryList">
 <pre></pre>
 </div>
 <div created="20200519141000553" list="$:/.giffmex/Buttons/more-tiddler-edit-actions $:/core/ui/Buttons/delete $:/core/ui/Buttons/cancel $:/core/ui/Buttons/save" modified="20200521145647980" tags="$:/giffmex/bigeditarea $:/giffmex/stroll" title="$:/tags/EditToolbar">
@@ -16077,7 +16083,7 @@ exports.context = contextWidget;
     }
 }</pre>
 </div>
-<div created="20200604150221131" modified="20200817171934760" title="$:/temp/NewTagName">
+<div created="20200604150221131" modified="20201018143039092" title="$:/temp/NewTagName">
 <pre></pre>
 </div>
 <div author="Paco Rivière" core-version="&gt;=5.0.0" created="20200604144908962" dependents="" description="Catalan (Spain)" icon="data:image/svg+xml,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22UTF-8%22%3F%3E%0A%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22810%22%20height%3D%22540%22%3E%0A%3Crect%20width%3D%22810%22%20height%3D%22540%22%20fill%3D%22%23FCDD09%22%2F%3E%0A%3Cpath%20stroke%3D%22%23DA121A%22%20stroke-width%3D%2260%22%20d%3D%22M0%2C90H810m0%2C120H0m0%2C120H810m0%2C120H0%22%2F%3E%0A%3C%2Fsvg%3E" modified="20200604144908962" name="ca-ES" original-plugin-type="language" original-tags="" original-title="$:/languages/ca-ES" original-type="application/json" requires-reload="no" server-url="https://tiddlywiki.com/library/v5.1.22/index.html" tags="$:/tags/RemoteAssetInfo" title="$:/temp/RemoteAssetInfo/https://tiddlywiki.com/library/v5.1.22/index.html/$:/languages/ca-ES" type="text/vnd.tiddlywiki" version="5.1.22">
@@ -18017,32 +18023,6 @@ DType powMod(DType a, DType b, DType m) {
 <div created="20200621034335917" modified="20200621034409585" tags="" title="随想">
 <pre>kafka是一个CA系统，而raft是CP</pre>
 </div>
-<div created="20201016144230583" modified="20201018053540493" tags="" title="源码阅读" type="text/x-markdown">
-<pre>## Redis
-### Topics
-* sds，自定义字符串实现：c内存管理范式，header+blocks
-* 双链表
-* 哈希表：冲突，rehash，渐进rehash
-* 跳表
-* 整数集合
-* 压缩表
-* ADT：STRING，LIST，HASH，SET，ZSET
-* ADT的实现（encoding）
-   - STRING：INT，EMBSTR，RAW（sds）
-   - LIST：ziplist，linkedlist
-   - HASH：ziplist，dict
-   - SET：intset，dict
-   - ZSET：ziplist，skiplist+dict
-* 编码转换
-* 自定义类型系统：类型检查，GC，LRU，对象共享，运行时多态
-* c语言泛型，编译时多态（函数指针）
-* 数据库：使用dict实现，过期字典，删除策略，数据库通知
-* RDB持久化：定时持久化，子进程持久化，编码
-* AOF：同步，重写，子进程重写及同步
-* 事件驱动,Reactor模式：IO多路复用，事件分发，事件处理循环，提前跳出
-* 客户端：命令结构，软限，伪客户端
-* 服务器：</pre>
-</div>
 <div created="20200607214348906" modified="20200607215005684" tags="算法 TODO" title="质因数分解">
 <pre>Pollard's rho
 
@@ -18192,6 +18172,63 @@ https://inconshreveable.com/07-08-2014/principles-of-designing-go-apis-with-chan
 
 练习比例，构图，形状，线条，明暗，色彩</pre>
 </div>
+<div created="20201018143448733" modified="20201018152413852" tags="Linux c TODO" title="Linux epoll" type="text/x-markdown">
+<pre>## 函数原型
+int epoll_create(int size);
+int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);
+int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout);
+
+## 用法
+### epoll_create
+size参数在linux 2.6.8之前是调用方给内核的一个hint，表示调用方会使用多少个fd，在linux 2.6.8之后这个参数被忽略，但是需要大于0来保证后向兼容。
+
+此函数会在内核中创建epoll api需要使用的结构并返回描述符
+
+### epoll_ctl
+epfd为epoll_create返回的描述符。
+op为常量EPOLL_CTL_ADD, EPOLL_CTL_MOD, EPOLL_CTL_DEL，分别表示希望进行增加，修改，删除fd。
+struct epoll_event定义如下
+```
+typedef union epoll_data {
+       void        *ptr;
+       int          fd;
+       uint32_t     u32;
+       uint64_t     u64;
+} epoll_data_t;
+
+struct epoll_event {
+       uint32_t     events;      /* Epoll events */
+       epoll_data_t data;        /* User data variable */
+};
+```
+其中epoll_event.events为常量，常用EPOLLIN，EPOLLOUT，EPOLLHUP，EPOLLERR
+
+### epoll_wait
+如果timeout为-1则block至有IO事件或被中断，timeout为0则立即返回，无论是否有IO事件
+返回值为事件数，成功返回时第二个参数events指向的内存会被设置为有IO事件的fd在epoll_ctl中设置的struct epoll_event
+
+## References
+[man page](https://man7.org/linux/man-pages/man7/epoll.7.html)</pre>
+</div>
+<div created="20201018142957924" modified="20201018150106481" tags="Linux c TODO" title="Linux select" type="text/x-markdown">
+<pre>## 函数原型
+int select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout);
+
+## 用法
+select会block直到：
+- readfds或writefds中的fd准备好读或写了
+- 被中断
+- 到达timeout
+
+返回准备好的fd的数量，并清除readfds和writefds使得只剩准备好的fd
+
+## 缺点
+只知道有多少fd是准备好的（有IO事件），而不知道哪些fd是准备好的，只能全部轮询一遍
+
+## References
+[man page](https://man7.org/linux/man-pages/man2/select.2.html)
+[select、poll、epoll之间的区别(搜狗面试)](https://www.cnblogs.com/aspirant/p/9166944.html)</pre>
+</div>
 <div created="20200607221442854" modified="20200607221509566" tags="算法" title="Morris Traversal方法遍历二叉树（非递归，不用栈，O(1)空间）">
 <pre>https://www.cnblogs.com/AnnieKim/archive/2013/06/15/morristraversal.html</pre>
 </div>
@@ -18222,6 +18259,199 @@ thaw 溶解 和freeze配合使用</pre>
 * Coders at Work
 * https://github.com/jlevy/the-art-of-command-line
 * xv6-riscv</pre>
+</div>
+<div created="20201018141745569" modified="20201018162744493" tags="redis TODO" title="Redis - ae 事件处理模块" type="text/vnd.tiddlywiki">
+<pre>!! 架构
+Event Source--&gt;IO multiplexer--&gt;Event Dispatcher--&gt;Event Handlers
+
+Event Source: Linux file descriptor
+
+IO multiplexer: [[Linux select]], [[Linux epoll]], evport, kqueue（evport为Solaris上的IO多路复用，kqueue则为FreeBSD和OSX上的）
+
+!! IO multiplexer
+redis为了平台兼容性，使用select，epoll，evport，kqueue实现了一套API，并通过预处理宏来条件选择实现
+
+```
+/* Include the best multiplexing layer supported by this system.
+ * The following should be ordered by performances, descending. */
+#ifdef HAVE_EVPORT
+#include &quot;ae_evport.c&quot;
+#else
+    #ifdef HAVE_EPOLL
+    #include &quot;ae_epoll.c&quot;
+    #else
+        #ifdef HAVE_KQUEUE
+        #include &quot;ae_kqueue.c&quot;
+        #else
+        #include &quot;ae_select.c&quot;
+        #endif
+    #endif
+#endif
+```
+API如下
+
+```
+// Init and de-init
+static int  aeApiCreate(aeEventLoop *eventLoop);
+static int  aeApiResize(aeEventLoop *eventLoop, int setsize);
+static void aeApiFree(aeEventLoop *eventLoop);
+// Register fd for read or write event
+static int  aeApiAddEvent(aeEventLoop *eventLoop, int fd, int mask);
+static void aeApiDelEvent(aeEventLoop *eventLoop, int fd, int delmask);
+// Poll events
+static int  aeApiPoll(aeEventLoop *eventLoop, struct timeval *tvp);
+
+static char *aeApiName(void);
+```
+前三个API用于初始化、调整和清理各实现用到的结构
+
+接着两个API用于为fd注册/解注册监听读或写事件
+
+aeApiPoll调用底层轮询函数获取IO事件，并设置为eventLoop的fired
+
+!! Event Dispatcher
+主要是ae.h/aeEventLoop结构和相关方法，除了调用IO multiplexer处理IO事件外还处理了时间事件。
+IO事件用数组保存，数组的index为fd，保存了事件监听类型mask和处理函数，时间事件用链表保存，保存一个id，触发时间和处理函数。
+
+主要处理API aeProcessEvents流程如下
+
+* 计算最近的时间事件的过期时间还有多久，作为aeApiPoll的timeout
+* 调用aeApiPoll
+* 检查fired，根据mask和fd调用对应处理函数
+* 最后调用处理时间事件的函数
+
+时间事件处理函数流程为
+
+* 获取当前时间
+* 如果当前时间小于上次调用此函数的时间，则表明系统时钟出错，将所有时间事件的过期时间设为0
+* 遍历时间事件链表，再次获取当前时间，如果当前时间大于过期时间，则调用事件处理函数
+* 检查处理函数返回值来判断此事件是否可以重复，如果可以重复则更新过期时间，不能重复则从链表删除
+
+!! 总结
+这个模块大体上就是操作系统提供的IO多路复用的包装。通过一个fd到处理函数的映射（aeFileEvent数组）来实现事件分发。</pre>
+</div>
+<div created="20201016144230583" modified="20201018172513181" tags="TODO TableOfContents" title="Redis 3.0" type="text/vnd.tiddlywiki">
+<pre>!!  Topics
+* sds，自定义字符串实现：c内存管理范式，header+blocks
+* 双链表
+* 哈希表：冲突，rehash，渐进rehash
+* 跳表
+* 整数集合
+* 压缩表
+* ADT：STRING，LIST，HASH，SET，ZSET
+* ADT的实现（encoding）
+   # STRING：INT，EMBSTR，RAW（sds）
+   # LIST：ziplist，linkedlist
+   # HASH：ziplist，dict
+   # SET：intset，dict
+   # ZSET：ziplist，skiplist+dict
+* 编码转换
+* 自定义类型系统：类型检查，GC，LRU，对象共享，运行时多态
+* c语言泛型，编译时多态（函数指针）
+* 数据库：使用dict实现，过期字典，删除策略，数据库通知
+* RDB持久化：定时持久化，子进程持久化，编码
+* AOF：同步，重写，子进程重写及同步
+* 事件驱动,Reactor模式：IO多路复用，事件分发，事件处理循环，提前跳出
+* 客户端：命令结构，软限，伪客户端
+* 服务器：
+
+!! 目录结构
+
+!!! 底层
+adlist.{c,h}: 双链表实现
+
+dict.{c,h}: 哈希表
+
+hyperloglog.c: hyperloglog算法
+
+intset.{c,h}: 整数集
+
+ziplist.{c,h}: 压缩列表
+
+zipmap.{c,h}: string-&gt;string的map的压缩版
+
+sds.{c,h}: 自定义字符串实现
+
+zmalloc.{c,h}: alloc的包装
+
+!!! ADT
+t_hash.c,t_lsit.c,t_set.c,t_string.c,t_zset.c: ADT
+
+object.c: redis object，类型系统
+
+!!! 数据库
+
+db.c: 数据库
+
+notify.c: 键空间事件
+
+aof.c: Append only file持久化
+
+rdb.{c,h}: rdb持久化
+
+pubsub.c: pub/sub命令实现
+
+multi.c: 事务
+
+sort.c: SORT命令
+
+bitops.c: 位操作
+
+!!! 服务器和客户端
+
+ae.{c,h},ae_epoll.c,ae_evport.c,ae_kqueue.c,ae_select.c: [[Redis - ae 事件处理模块]]
+
+anet.{c,h}:TCP socket
+
+networking.c: 客户端交互
+
+redis.{c,h}: 主函数
+
+scripting.c: lua脚本相关
+
+slowlog.{c,h}: 慢查询日志
+
+latency.{c,h}: 延迟监控
+
+!!! 多机
+
+cluster.{c,h}: redis集群
+
+sentinel.c: 哨兵实例
+
+replication.c: 异步复制
+
+!!! 其他
+
+bio.{c,h}: Background IO, 3.0版本中只用于调用系统调用close
+
+blocked.c: 用于实现客户端的阻塞操作
+
+config.{c,h}: 配置文件解析，命令行配置解析，配置的SET/GET命令实现
+
+crc16.c,crc64.{c,h}: crc算法
+
+debug.c: debug相关
+
+endianconv.{c.h}: 字节序转换函数
+
+help.h: 自动生成的帮助信息
+
+lzf.h,lzfP.h,lzf_c.c,lzf_d.c: lzf压缩算法, http://liblzf.plan9.de/
+
+pqsort.{c,h}: 快速排序
+
+rand.{c,h}: 伪随机数
+
+redis-cli.c: 命令行
+
+rio.{c,h}: IO操作
+
+setproctitle.c: 设置进程名
+
+sparkline.{c,h}: shell里面画图
+
+syncio.c: 同步读写，调用了aeWait</pre>
 </div>
 <div created="20200604165457939" modified="20200604165623039" tags="源码 redis TODO" title="Redis 源码阅读">
 <pre>https://blog.huangz.me/diary/2014/how-to-read-redis-source-code.html</pre>
