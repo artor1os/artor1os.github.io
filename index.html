@@ -18330,7 +18330,7 @@ IO事件用数组保存，数组的index为fd，保存了事件监听类型mask�
 !! 总结
 这个模块大体上就是操作系统提供的IO多路复用的包装。通过一个fd到处理函数的映射（aeFileEvent数组）来实现事件分发。</pre>
 </div>
-<div created="20201016144230583" modified="20201018172513181" tags="TODO TableOfContents" title="Redis 3.0" type="text/vnd.tiddlywiki">
+<div created="20201016144230583" modified="20201018172603707" tags="TODO TableOfContents" title="Redis 3.0" type="text/vnd.tiddlywiki">
 <pre>!!  Topics
 * sds，自定义字符串实现：c内存管理范式，header+blocks
 * 双链表
@@ -18451,7 +18451,10 @@ setproctitle.c: 设置进程名
 
 sparkline.{c,h}: shell里面画图
 
-syncio.c: 同步读写，调用了aeWait</pre>
+syncio.c: 同步读写，调用了aeWait
+
+!! References
+https://blog.huangz.me/diary/2014/how-to-read-redis-source-code.html</pre>
 </div>
 <div created="20200604165457939" modified="20200604165623039" tags="源码 redis TODO" title="Redis 源码阅读">
 <pre>https://blog.huangz.me/diary/2014/how-to-read-redis-source-code.html</pre>
